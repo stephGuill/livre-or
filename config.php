@@ -31,3 +31,11 @@ function getCurrentUser() {
     }
     return null;
 }
+
+// fonction pour déconnecter l'utilisateur
+function logout() {
+    session_destroy();
+    header('Location: index.pgp');
+    exit();
+}
+?>
