@@ -34,8 +34,17 @@ function getCurrentUser() {
 
 // fonction pour déconnecter l'utilisateur
 function logout() {
+    // libère les variables de session
+    session_unset();
+    // détruit la session
     session_destroy();
-    header('Location: index.pgp');
+
+    // optionnel : fermer explicitement la connexion si définie globalement
+    global $pdo;
+    if (isset($pdo)) {
+        $pdo = null;
+    }
+    header('Location: index.php');
     exit();
 }
 ?>
