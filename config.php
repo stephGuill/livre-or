@@ -34,10 +34,28 @@ function getCurrentUser() {
 
 // fonction pour déconnecter l'utilisateur
 function logout() {
-    // libère les variables de session
+    // Vide les variables de session
     session_unset();
-    // détruit la session
+    // Détruit la session elle-même
     session_destroy();
+
+    // Ferme la connexion à la base si elle existe globalement
+    global $pdo;
+    if (isset($pdo)) {
+        $pdo = null;
+    }
+
+    // Redirection propre vers la page d'accueil
+    header('Location: index.php');
+    exit();
+}
+
+// Fonction utilitaire pour fermer explicitement la connexion PDO si souhaité
+function closeDb() {
+    global $pdo;
+    if (isset($pdo)) {
+        $pdo = null;
+    }
 
     // optionnel : fermer explicitement la connexion si définie globalement
     global $pdo;

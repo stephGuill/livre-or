@@ -24,16 +24,15 @@ if ($_POST) {
             if ($user && password_verify($password, $user['password'])) {
                 // connexion réussie
                 $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_login'] =$user['login'];
+                $_SESSION['user_login'] = $user['login'];
 
 
-                // ... après avoir utilisé $pdo, p.ex. après verify + session set
-                $pdo = null;
-                //  ferme la connexion maintenant
+                // Optionnel : fermer explicitement la connexion PDO si vous souhaitez libérer la ressource
+                // $pdo = null; // décommentez si nécessaire
                 header('Location: index.php');
                 exit();
             } else {
-                $error = "Nom d'utilisateurou d'un mot de passe incorrect.";
+                $error = "Nom d'utilisateur ou mot de passe incorrect.";
             }
         } catch(PDOException $e) {
             $error = "Erreur de connexion : " . $e->getMessage();
