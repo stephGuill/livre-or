@@ -22,36 +22,44 @@ $success = '';
 
 // Traitement du formulaire si la méthode POST est utilisée
 if ($_POST) {
-    // Récupère et normalise le champ 'commentaire' envoyé par le formulaire
-    $commentaire = trim($_POST['commentaire']);
-
-    // Validation côté serveur : évite d'accepter des commentaires vides ou trop courts/longs
-    if (empty($commentaire)) {
-        // empty() vérifie '', null, '0' etc. Ici on veut empêcher un commentaire vide
-        $error = "Le commentaire ne peut pas être vide.";
-    } elseif (strlen($commentaire) < 10) {
-        // strlen() retourne la longueur en octets ; pour UTF-8 multioctets mb_strlen() serait préférable
-        $error = "Le commentaire doit contenir au moins 10 caractères.";
-    } elseif (strlen($commentaire) > 1000) {
-        $error = "Le commentaire ne peut pas dépasser 1000 caractères.";
+    /* CSRF validation for posting comments
+     * - Empêche qu'un site tiers soumette un commentaire à la place de l'utilisateur.
+     * - Le token est vérifié avant toute validation métier du commentaire.
+     */
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = "Requête invalide (jeton CSRF manquant ou invalide).";
     } else {
-        // Si les validations passent, on essaie d'insérer le commentaire en base
-        try {
-            // Requête préparée pour insérer en toute sécurité (prévention injection SQL)
-            $stmt = $pdo->prepare("INSERT INTO commentaires (commentaire, id_utilisateur, date) VALUES (?, ?, NOW())");
-            // Exécution avec paramètres positionnels : commentaire texte et id de l'utilisateur
-            $stmt->execute([$commentaire, $currentUser['id']]);
+        // Récupère et normalise le champ 'commentaire' envoyé par le formulaire
+        $commentaire = trim($_POST['commentaire']);
 
-            // Prépare un message de succès pour affichage
-            $success = "Votre commentaire a été ajouté avec succès !";
+        // Validation côté serveur : évite d'accepter des commentaires vides ou trop courts/longs
+        if (empty($commentaire)) {
+            // empty() vérifie '', null, '0' etc. Ici on veut empêcher un commentaire vide
+            $error = "Le commentaire ne peut pas être vide.";
+        } elseif (strlen($commentaire) < 10) {
+            // strlen() retourne la longueur en octets ; pour UTF-8 multioctets mb_strlen() serait préférable
+            $error = "Le commentaire doit contenir au moins 10 caractères.";
+        } elseif (strlen($commentaire) > 1000) {
+            $error = "Le commentaire ne peut pas dépasser 1000 caractères.";
+        } else {
+            // Si les validations passent, on essaie d'insérer le commentaire en base
+            try {
+                // Requête préparée pour insérer en toute sécurité (prévention injection SQL)
+                $stmt = $pdo->prepare("INSERT INTO commentaires (commentaire, id_utilisateur, date) VALUES (?, ?, NOW())");
+                // Exécution avec paramètres positionnels : commentaire texte et id de l'utilisateur
+                $stmt->execute([$commentaire, $currentUser['id']]);
 
-            // Redirection rafraîchissante : attend 2 secondes puis redirige vers la page du livre d'or
-            header("Refresh: 2; url=livre-or.php");
-            // NOTE : on ne met pas exit() immédiatement si l'on veut laisser le message s'afficher
-        } catch (PDOException $e) {
-            // En environnement de développement on peut afficher le message de l'exception
-            // En production, préférez logger $e->getMessage() et afficher un message générique
-            $error = "Erreur lors de l'ajout du commentaire : " . $e->getMessage();
+                // Prépare un message de succès pour affichage
+                $success = "Votre commentaire a été ajouté avec succès !";
+
+                // Redirection rafraîchissante : attend 2 secondes puis redirige vers la page du livre d'or
+                header("Refresh: 2; url=livre-or.php");
+                // NOTE : on ne met pas exit() immédiatement si l'on veut laisser le message s'afficher
+            } catch (PDOException $e) {
+                // En environnement de développement on peut afficher le message de l'exception
+                // En production, préférez logger $e->getMessage() et afficher un message générique
+                $error = "Erreur lors de l'ajout du commentaire : " . $e->getMessage();
+            }
         }
     }
 }
@@ -105,6 +113,8 @@ if ($_POST) {
 
                 <!-- Formulaire d'envoi d'un commentaire -->
                 <form method="POST" action="">
+                    <!-- Champ caché CSRF : inséré ici pour protéger la requête POST -->
+                    <?= getCsrfInput() ?>
                     <div class="form-group">
                         <label for="commentaire">Votre commentaire :</label>
                         <!-- textarea : conserve la valeur soumise en cas d'erreur pour éviter perte de saisie -->

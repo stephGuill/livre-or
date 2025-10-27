@@ -23,9 +23,15 @@ $success = ''; // message de succès (corrigé depuis $succes)
 // Traitement du formulaire : vérifier si la requête contient des données POST
 // On utilise la vérification simple "if ($_POST)" ; on peut aussi faire if ($_SERVER['REQUEST_METHOD'] === 'POST')
 if ($_POST) {
-    // Vérification CSRF : s'assurer que le formulaire contient un token valide
-    // Si le token est absent ou invalide, on refuse la requête et on définit une erreur.
+    /* CSRF validation
+     * -----------------
+     * Le token envoyé par le formulaire (champ caché `csrf_token`) est comparé
+     * au token stocké en session via validateCsrfToken(). Si la validation échoue
+     * on n'exécute aucune action côté serveur et on affiche un message d'erreur.
+     * Cela empêche des requêtes POST forgées depuis un site tiers.
+     */
     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        // Requête suspecte : on refuse et on logue un message côté client.
         $error = "Requête invalide (jeton CSRF manquant ou invalide).";
     } else {
         // Récupération et nettoyage des données envoyées par l'utilisateur
@@ -141,6 +147,7 @@ if ($_POST) {
 
                 <!-- Formulaire de modification du profil. Méthode POST pour ne pas exposer les données dans l'URL. -->
                 <form method="POST" action="">
+                    <!-- Champ caché CSRF : inséré par getCsrfInput() -> protège le formulaire -->
                     <?= getCsrfInput() ?>
                     <div class="form-group">
                         <label for="login">Nom d'utilisateur :</label>

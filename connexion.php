@@ -16,49 +16,57 @@ $error = '';
 
 // Traitement du formulaire envoyé en POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupération et nettoyage basique des entrées
-    // trim() enlève les espaces en début/fin du login
-    $login = trim($_POST['login'] ?? '');
-    // mot de passe en clair reçu depuis le formulaire (ne pas stocker ainsi)
-    $password = $_POST['password'] ?? '';
-
-    // Validation minimale côté serveur
-    if (empty($login) || empty($password)) {
-        // empty() couvre '', null, '0' etc. Ici on exige les deux champs non vides
-        $error = "Veuillez remplir tous les champs.";
+    /* CSRF protection for login
+     * Raison : même le formulaire de connexion peut être ciblé par des requêtes
+     * forgées. On vérifie ici la présence et la validité du token avant tout traitement.
+     */
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        $error = "Requête invalide (jeton CSRF manquant ou invalide).";
     } else {
-        try {
-            // Prépare une requête SQL sécurisée (requête préparée)
-            // Sélectionne l'utilisateur par login (nom d'utilisateur)
-            $stmt = $pdo->prepare("SELECT id, login, password FROM utilisateurs WHERE login = ?");
-            // Exécute la requête avec le login en paramètre (protection contre l'injection SQL)
-            $stmt->execute([$login]);
-            // Récupère la ligne (ARRAY associatif grâce au fetch mode défini dans config)
-            $user = $stmt->fetch();
+        // Récupération et nettoyage basique des entrées
+        // trim() enlève les espaces en début/fin du login
+        $login = trim($_POST['login'] ?? '');
+        // mot de passe en clair reçu depuis le formulaire (ne pas stocker ainsi)
+        $password = $_POST['password'] ?? '';
 
-            // Vérifie que l'utilisateur existe et que le mot de passe haché en DB
-            // correspond au mot de passe fourni (password_verify utilise les hashs créés par password_hash)
-            if ($user && password_verify($password, $user['password'])) {
-                // Connexion réussie : on stocke l'id et le login dans la session
-                // $_SESSION est un tableau superglobal géré par PHP pour la session utilisateur
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_login'] = $user['login'];
+        // Validation minimale côté serveur
+        if (empty($login) || empty($password)) {
+            // empty() couvre '', null, '0' etc. Ici on exige les deux champs non vides
+            $error = "Veuillez remplir tous les champs.";
+        } else {
+            try {
+                // Prépare une requête SQL sécurisée (requête préparée)
+                // Sélectionne l'utilisateur par login (nom d'utilisateur)
+                $stmt = $pdo->prepare("SELECT id, login, password FROM utilisateurs WHERE login = ?");
+                // Exécute la requête avec le login en paramètre (protection contre l'injection SQL)
+                $stmt->execute([$login]);
+                // Récupère la ligne (ARRAY associatif grâce au fetch mode défini dans config)
+                $user = $stmt->fetch();
 
-                // Optionnel : fermer explicitement la connexion PDO si vous voulez
-                // libérer la ressource immédiatement (PHP la fermera automatiquement à la fin du script)
-                // $pdo = null; // décommentez si nécessaire
+                // Vérifie que l'utilisateur existe et que le mot de passe haché en DB
+                // correspond au mot de passe fourni (password_verify utilise les hashs créés par password_hash)
+                if ($user && password_verify($password, $user['password'])) {
+                    // Connexion réussie : on stocke l'id et le login dans la session
+                    // $_SESSION est un tableau superglobal géré par PHP pour la session utilisateur
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['user_login'] = $user['login'];
 
-                // Redirection vers la page d'accueil après connexion
-                header('Location: index.php');
-                exit();
-            } else {
-                // Erreur générique pour éviter de révéler si le login ou le mot de passe est incorrect
-                $error = "Nom d'utilisateur ou mot de passe incorrect.";
+                    // Optionnel : fermer explicitement la connexion PDO si vous voulez
+                    // libérer la ressource immédiatement (PHP la fermera automatiquement à la fin du script)
+                    // $pdo = null; // décommentez si nécessaire
+
+                    // Redirection vers la page d'accueil après connexion
+                    header('Location: index.php');
+                    exit();
+                } else {
+                    // Erreur générique pour éviter de révéler si le login ou le mot de passe est incorrect
+                    $error = "Nom d'utilisateur ou mot de passe incorrect.";
+                }
+            } catch (PDOException $e) {
+                // En développement on peut afficher le message d'erreur
+                // En production, préférez logger l'erreur et afficher un message générique
+                $error = "Erreur de connexion : " . $e->getMessage();
             }
-        } catch (PDOException $e) {
-            // En développement on peut afficher le message d'erreur
-            // En production, préférez logger l'erreur et afficher un message générique
-            $error = "Erreur de connexion : " . $e->getMessage();
         }
     }
 }
@@ -97,6 +105,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST" action="">
+                    <!-- Champ caché CSRF (getCsrfInput) : protège la soumission du formulaire -->
+                    <?= getCsrfInput() ?>
                     <div class="form-group">
                         <label for="login">Nom d'utilisateur :</label>
                         <input type="text" id="login" name="login" required 

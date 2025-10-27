@@ -22,6 +22,20 @@ session_start();
 // - getCsrfInput() : renvoie le HTML d'un input caché contenant le token
 // - validateCsrfToken($token) : vérifie la validité du token soumis
 // Utiliser un token par session est un bon compromis simplicité/sécurité.
+/**
+ * generateCsrfToken
+ * ------------------
+ * Crée (si nécessaire) et retourne un token CSRF stocké en session.
+ * Utilisation : appeler generateCsrfToken() avant d'afficher un formulaire
+ * (getCsrfInput() appelle cette fonction). Le token est généré avec
+ * random_bytes() pour assurer de l'entropie cryptographique.
+ *
+ * Security notes:
+ * - Le token est conservé côté serveur en session et comparé avec
+ *   la valeur fournie par le client lors du POST.
+ * - Ne jamais envoyer le token via des canaux non sécurisés si la
+ *   page est servie en HTTP (préférer HTTPS en production).
+ */
 function generateCsrfToken() {
     if (session_status() !== PHP_SESSION_ACTIVE) {
         session_start();
@@ -33,11 +47,31 @@ function generateCsrfToken() {
     return $_SESSION['csrf_token'];
 }
 
+/**
+ * getCsrfInput
+ * -------------
+ * Helper renvoyant le HTML d'un champ input caché contenant le token CSRF.
+ * Insertion recommandée directement dans la balise <form> :
+ *     <form method="POST"> <?= getCsrfInput() ?> ... </form>
+ *
+ * Remarque : htmlspecialchars est utilisé par sécurité pour l'injection dans
+ * l'attribut value, bien que la valeur soit hexadécimale.
+ */
 function getCsrfInput() {
     $token = generateCsrfToken();
     // htmlspecialchars au cas où on affiche dans un attribut
     return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
 }
+
+/**
+ * validateCsrfToken
+ * ------------------
+ * Compare de manière sécurisée (hash_equals) le token fourni par la requête
+ * avec le token stocké en session. Retourne true si les deux correspondent.
+ *
+ * Usage typique dans le traitement POST des formulaires :
+ *     if (!validateCsrfToken($_POST['csrf_token'] ?? '')) { // rejeter la requête }
+ */
 
 function validateCsrfToken($tokenFromRequest) {
     if (session_status() !== PHP_SESSION_ACTIVE) {
