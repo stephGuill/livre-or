@@ -16,6 +16,40 @@ try {
 // démarage de la session
 session_start();
 
+// --------------------
+// Protection CSRF - utilitaires
+// - generateCsrfToken() : crée un token aléatoire stocké en session
+// - getCsrfInput() : renvoie le HTML d'un input caché contenant le token
+// - validateCsrfToken($token) : vérifie la validité du token soumis
+// Utiliser un token par session est un bon compromis simplicité/sécurité.
+function generateCsrfToken() {
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+    if (empty($_SESSION['csrf_token'])) {
+        // random_bytes pour cryptographie forte, bin2hex pour stockage en ASCII
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function getCsrfInput() {
+    $token = generateCsrfToken();
+    // htmlspecialchars au cas où on affiche dans un attribut
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
+}
+
+function validateCsrfToken($tokenFromRequest) {
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+    if (empty($tokenFromRequest) || empty($_SESSION['csrf_token'])) {
+        return false;
+    }
+    // Utiliser hash_equals pour prévenir les attaques timing
+    return hash_equals($_SESSION['csrf_token'], $tokenFromRequest);
+}
+
 //  fonction pour vérifier si l'utilisateur est connecté
 function isLoggedIn() {
     return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);

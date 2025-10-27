@@ -84,6 +84,11 @@ body {
     margin-bottom: 30px;
     /* ombre portée */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    /* Centre la barre de navigation et garantit un bon alignement */
+    display: flex;
+    justify-content: center; /* centre horizontalement le contenu de .nav */
+    align-items: center;     /* centre verticalement (utile si .nav a hauteur) */
+    width: 100%;
 }
 
 .nav a {
@@ -326,4 +331,17 @@ body {
         /* réduit le padding intérieur sur mobile */
         padding: 20px;
     }
+}
+
+.nav ul {
+    /* reset des marges et paddings par défaut */
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    /* flexbox pour aligner les éléments en ligne */
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
 }
