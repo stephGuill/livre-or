@@ -23,7 +23,7 @@ if ($_POST) {
     } else {
         try {
             $stmt = $pdo->prepare("INSERT INTO commentaires (commentaire, id_utilisateur, date) VALUES (?, ?, NOW())");
-            $stmt ->execute([$commentair, $currentUser['id']]);
+            $stmt ->execute([$commentaire, $currentUser['id']]);
 
             $sussess = "Votre commentaire a été ajouté avec succès !";
             header("refresh:2;url=livre-or.php");

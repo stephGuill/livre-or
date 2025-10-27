@@ -1,61 +1,329 @@
-/* style général pour le dlivre d'or */
-{
+/* Reset global de base : affecte tous les éléments */
+/* Utilise le sélecteur universel pour enlever marges et paddings par défaut */
+* {
+    /* supprime la marge par défaut du navigateur */
     margin: 0;
+    /* supprime le padding par défaut du navigateur */
     padding: 0;
-    box-sizing: border-box;    
+    /* utilise le box-sizing border-box pour inclure padding/border dans la largeur totale */
+    box-sizing: border-box;
 }
 
+/* Styles globaux du corps de la page */
 body {
-    font-family: 'segoe UI', Tahoma, Geneva, verdana, sans-serif;
-    background: linerar-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* police principale ; garde les fallbacks */
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    /* fond en dégradé diagonal (corrigé : linear-gradient) */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* hauteur minimale pour couvrir toute la fenêtre */
     min-height: 100vh;
-    color : #333;
+    /* couleur du texte par défaut */
+    color: #333;
 }
 
+/* Conteneur central : limite la largeur et centre le contenu */
 .container {
+    /* largeur max pour la lecture confortable */
     max-width: 1200px;
+    /* centre horizontalement en auto */
     margin: 0 auto;
+    /* espacement interne général */
     padding: 20px;
 }
 
 /* Header */
+/* Fond et design du header principal */
 .header {
+    /* fond blanc semi-translucide pour effet glass */
     background: rgba(255, 255, 255, 0.95);
+    /* flou d'arrière-plan pour l'effet glassmorphism */
     backdrop-filter: blur(10px);
+    /* ombre portée douce */
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    /* bords arrondis */
     border-radius: 15px;
+    /* espacement extérieur */
     margin-bottom: 30px;
+    /* espacement intérieur */
     padding: 20px;
 }
 
 .header h1 {
+    /* couleur accent */
     color: #764ba2;
+    /* centre le texte */
     text-align: center;
+    /* taille principale du titre */
     font-size: 2.5em;
+    /* espace sous le titre */
     margin-bottom: 10px;
+    /* légère ombre pour profondeur */
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .header p {
+    /* centre le paragraphe */
     text-align: center;
+    /* taille de police secondaire */
     font-size: 1.2em;
+    /* couleur grisée */
     color: #666;
 }
 
 /* Navigation */
 .nav {
+    /* fond semi-translucide */
     background: rgba(255, 255, 255, 0.9);
+    /* effet de flou */
     backdrop-filter: blur(10px);
+    /* coins arrondis */
     border-radius: 12px;
+    /* espacement intérieur */
     padding: 15px;
+    /* espacement extérieur */
     margin-bottom: 30px;
+    /* ombre portée */
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.nav ul {
-    list-style: none;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 20px;
+.nav a {
+    /* couleur du lien */
+    color: #764ba2;
+    /* supprime le soulignement */
+    text-decoration: none;
+    /* espacement interne pour zone cliquable */
+    padding: 10px 20px;
+    /* arrondit le bouton */
+    border-radius: 25px;
+    /* priorité visuelle */
+    font-weight: 500;
+    /* transition pour hover smooth */
+    transition: all 0.3s ease;
+    /* léger fond pour délimiter le lien */
+    background: rgba(118, 75, 162, 0.1);
+}
+
+.nav a:hover {
+    /* fond plein à l'état survol */
+    background: #764ba2;
+    /* texte blanc au survol */
+    color: white;
+    /* petit déplacement vers le haut */
+    transform: translateY(-2px);
+    /* ombre prononcée au survol */
+    box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+}
+
+/* Contenu principal */
+.main-content {
+    /* fond principal du panneau */
+    background: rgba(255, 255, 255, 0.95);
+    /* flou en arrière-plan */
+    backdrop-filter: blur(10px);
+    /* bords arrondis */
+    border-radius: 15px;
+    /* padding intérieur */
+    padding: 30px;
+    /* ombre pour profondeur */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    /* espace sous le panneau */
+    margin-bottom: 30px;
+}
+
+/* Formulaires */
+.form-container {
+    /* limite la largeur du formulaire */
+    max-width: 500px;
+    /* centre le formulaire */
+    margin: 0 auto;
+}
+
+.form-group {
+    /* espace entre champs */
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    /* affiche le label sur sa propre ligne */
+    display: block;
+    /* espace sous le label */
+    margin-bottom: 8px;
+    /* couleur du label */
+    color: #555;
+    /* font-weight pour lisibilité */
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+    /* largeur pleine du conteneur */
+    width: 100%;
+    /* padding interne confortable */
+    padding: 12px 15px;
+    /* bord neutre */
+    border: 2px solid #e1e1e1;
+    /* arrondit le champ */
+    border-radius: 8px;
+    /* taille de police lisible */
+    font-size: 16px;
+    /* animation lors de focus */
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    /* enlève la bordure de focus par défaut */
+    outline: none;
+    /* change la couleur de la bordure au focus */
+    border-color: #764ba2;
+    /* halo subtil autour du champ */
+    box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+}
+
+.form-group textarea {
+    /* permet de redimensionner verticalement seulement */
+    resize: vertical;
+    /* hauteur minimale pour la saisie */
+    min-height: 120px;
+}
+
+.btn {
+    /* fond en dégradé pour bouton */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* couleur du texte */
+    color: white;
+    /* padding du bouton */
+    padding: 12px 30px;
+    /* pas de bordure */
+    border: none;
+    /* arrondit le bouton */
+    border-radius: 25px;
+    /* taille de police */
+    font-size: 16px;
+    /* emphase */
+    font-weight: 500;
+    /* curseur main */
+    cursor: pointer;
+    /* transition pour hover */
+    transition: all 0.3s ease;
+    /* pas de soulignement, utilisé aussi pour liens styled as buttons */
+    text-decoration: none;
+    /* s'affiche inline-block pour respecter padding */
+    display: inline-block;
+}
+
+.btn:hover {
+    /* légère translation au survol */
+    transform: translateY(-2px);
+    /* ombre au survol */
+    box-shadow: 0 5px 20px rgba(118, 75, 162, 0.4);
+}
+
+.btn-center {
+    /* centre les boutons dans leur conteneur */
+    text-align: center;
+}
+
+/* Messages */
+.message {
+    /* padding pour lisibilité */
+    padding: 15px;
+    /* arrondit le message */
+    border-radius: 8px;
+    /* séparateur sous le message */
+    margin-bottom: 20px;
+    /* poids du texte */
+    font-weight: 500;
+}
+
+.message.success {
+    /* fond vert pâle */
+    background: #d4edda;
+    /* texte vert foncé */
+    color: #155724;
+    /* bordure verte légère */
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    /* fond rouge pâle */
+    background: #f8d7da;
+    /* texte rouge foncé */
+    color: #721c24;
+    /* bordure rouge */
+    border: 1px solid #f5c6cb;
+}
+
+/* Commentaires */
+.comment {
+    /* fond semi-translucide pour chaque commentaire */
+    background: rgba(255, 255, 255, 0.8);
+    /* arrondit la carte du commentaire */
+    border-radius: 12px;
+    /* padding interne */
+    padding: 20px;
+    /* espace dessous */
+    margin-bottom: 20px;
+    /* ombre légère */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    /* accent visuel à gauche */
+    border-left: 4px solid #764ba2;
+}
+
+.comment-meta {
+    /* couleur et taille pour méta-info */
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+    font-style: italic;
+}
+
+.comment-text {
+    /* distance entre les lignes pour lisibilité */
+    line-height: 1.6;
+    /* couleur du texte */
+    color: #333;
+}
+
+/* User info */
+.user-info {
+    /* fond léger pour box info utilisateur */
+    background: rgba(118, 75, 162, 0.1);
+    /* arrondit la boite */
+    border-radius: 8px;
+    /* padding interne */
+    padding: 15px;
+    /* espace sous la boite */
+    margin-bottom: 20px;
+    /* centre le texte */
+    text-align: center;
+}
+
+.user-info strong {
+    /* couleur accent pour le nom d'utilisateur */
+    color: #764ba2;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        /* réduit le padding sur petits écrans */
+        padding: 10px;
+    }
+    
+    .header h1 {
+        /* titre légèrement plus petit sur mobile */
+        font-size: 2em;
+    }
+    
+    .nav ul {
+        /* empile les éléments de la nav verticalement */
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .main-content {
+        /* réduit le padding intérieur sur mobile */
+        padding: 20px;
+    }
 }
